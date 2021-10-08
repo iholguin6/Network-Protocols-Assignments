@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <string.h>
 #define PORT 8080
-
+// MACROs
 #define OP_SUM  0
 #define OP_MEAN 1
 #define OP_MIN  2
