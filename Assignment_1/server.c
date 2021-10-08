@@ -13,6 +13,19 @@
 #include <netinet/in.h>
 #include <string.h>
 
+
+#define OP_SUM  0
+#define OP_MEAN 1
+#define OP_MIN  2
+#define OP_MAX  3
+
+#define MAX_SIZE 10
+typedef struct Computation_t{
+    int operation;
+    double number[MAX_SIZE];
+}Computation_t;
+
+
 #define PORT 8080
 int main(int argc, char **argv){
     int server_socket,client_socket;
@@ -24,17 +37,9 @@ int main(int argc, char **argv){
         printf("Could not create the socket...\n");
         return -1;
     }
-
-    // if(setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)))
-    // {
-    //     printf("error on socket opt\n");
-    //     return -1;
-    // }
-   
-    server_address.sin_family = AF_INET;            //Ip4 mode        
-    server_address.sin_port = htons(PORT);          //port number
-    server_address.sin_addr.s_addr = INADDR_ANY;    //any address    
-
+    server_address.sin_family = AF_INET;
+    server_address.sin_port = htons(PORT);
+    server_address.sin_addr.s_addr = INADDR_ANY;
 
     if( bind(server_socket, (struct sockaddr*)&server_address,sizeof(server_address)) < 0){
         printf("Error during binding...\n");
@@ -50,13 +55,49 @@ int main(int argc, char **argv){
         return -1;
     }
 
-    char buffer[20];
-    while(1){
-        recv(client_socket,buffer, sizeof(buffer),0);
-        printf("Message recieved: %s\n", buffer);
-    }
-  
 
+    Computation_t server_com;
+
+    recv(client_socket, &server_com, sizeof(server_com),0);
+
+    double data = 0.0;
+
+    if(server_com.operation == OP_SUM){
+        double sum = 0;
+        for(int i =0; i < MAX_SIZE; i++){
+            sum += server_com.number[i];
+        }
+        data = sum;
+    }else if(server_com.operation == OP_MEAN){
+        double sum = 0;
+        for(int i =0; i < MAX_SIZE; i++){
+            sum += server_com.number[i];
+        }
+        data = sum / MAX_SIZE;
+    }else if(server_com.operation == OP_MIN){
+        double min_val = server_com.number[0];
+        for(int i =0; i < MAX_SIZE; i++){
+            if(server_com.number[i] < min_val){
+                min_val = server_com.number[i];
+            }
+        }
+        data = min_val;
+        //find min
+    }else if(server_com.operation == OP_MAX){
+        double max_val = server_com.number[0];
+        for(int i =0; i < MAX_SIZE; i++){
+            if(server_com.number[i] > max_val){
+                max_val = server_com.number[i];
+            }
+        }
+        data = max_val;
+        //find max
+    }else{
+        return 0;
+        //error handle return -1
+    }
+
+    send(client_socket, &data,sizeof(data), 0);
     
     return 0;
 }
