@@ -21,3 +21,6 @@ typedef struct
 3) The server performs the requested computation and returns the double-precision floating point (real) number to the client.
 
 4) Submit, via Blackboard, the deliverables described below. Use all lower case characters for your file names
+## Deliverables:
+ Submit clientapp.c and serverapp.c with good comments in a compressed tar file: 
+  firstinitiallastname_prog1.tgz.
